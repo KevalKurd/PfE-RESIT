@@ -9,7 +9,7 @@
 //argv stores every word in the argument
 int main(int argc, char *argv[])
 {
-
+    printf("Size of ADCBinaryRecord: %zu bytes\n", sizeof(ADCBinaryRecord));
     //This creates ONE structure
     ADCFileHeader header;
 
@@ -48,7 +48,19 @@ int main(int argc, char *argv[])
 
     printf("Sample Rate  : %u Hz\n", header.sample_rate_hz);
 
+    printf("\nFirst 5 ADC records:\n");
 
+    for (int i = 0; i < 5; i++)
+    {
+        printf("Record %d | Time: %.4f s | CH: %u | Raw: %u | Temp: %.1f C | Flags: 0x%02X | Seq: %u\n",
+               i,
+               samples[i].timestamp,
+               samples[i].channel_id,
+               samples[i].raw_value,
+               samples[i].temperature / 10.0,
+               samples[i].status_flags,
+               samples[i].sequence_number);
+    }
     //free() will release the memory back
     free(samples);
     return 0;

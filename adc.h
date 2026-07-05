@@ -39,6 +39,20 @@ typedef struct {
 } ADCSample;
 
 
+//Structure matches the 16-byte record stored in the binary file
+#pragma pack(push, 1)
+typedef struct {
+    float timestamp;
+    uint8_t channel_id;
+    uint16_t raw_value;
+    int16_t temperature;
+    uint8_t status_flags;
+    uint32_t sequence_number;
+    uint8_t reserved[2];
+} ADCBinaryRecord;
+
+#pragma pack(pop)
+
 //Function prototype - converts a raw ADC value to a voltage
 //Parameters: raw_value - ADC value between 0 and 4095
 //Returns: Calculated voltage between 0 V and 3 V

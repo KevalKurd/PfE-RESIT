@@ -1,7 +1,3 @@
-//
-// Created by k3-mustafa on 28/06/2026.
-//
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -13,14 +9,15 @@
 #define EXPECTED_SAMPLE_RATE  1000
 
 
-    //Function: readADCFile()
-    /*Purpose:
-    * Opens the binary ADC file
-    * Reads the file header
-    * Checks that the header information is correct
-    * Allocates memory ready for all ADC samples
-    *  It only prepares the program
-    */
+
+/*Function: readADCFile()
+ * Purpose:
+ * Opens the binary ADC file
+ * Reads the file header
+ * Checks that the header information is correct
+ * Allocates memory ready for all ADC samples
+ *  It only prepares the program
+*/
 int readADCFile(const char *filename,ADCFileHeader *header,ADCSample **samples)
 {
 
@@ -102,6 +99,52 @@ int readADCFile(const char *filename,ADCFileHeader *header,ADCSample **samples)
 
         return 0;
     }
+    /*
+        * Now read every 16-byte binary record from the file.
+        *
+        * We read into ADCBinaryRecord first because that matches the file.
+        * Then we copy the values into ADCSample, which is the struct our
+        * analysis code will use later.
+        */
+    //Read every 16-byte binary record from the file
+    //Read into ADCBinaryRecord first because that matches the file
+    //Then we copy the values into ADCSample, which is the struct that the analysis code uses
+    for (uint32_t i = 0; i < header->record_count; i++)
+    {
+        ADCBinaryRecord record;
+
+
+        //fread reads 1 binary record from the file
+        //If 1 is not returned, the reading has failed
+        if (fread(&record, sizeof(ADCBinaryRecord), 1, file) != 1)
+        {
+            printf("Error: Could not read ADC record %u.\n", i);
+
+            free(*samples);
+            *samples = NULL;
+
+            fclose(file);
+            return 0;
+        }
+
+
+        //Record stored in our main samples array
+        //Pointer arithmetic is used to go to a specific pointer
+        ADCSample *currentSample = (*samples + i);
+
+        currentSample->timestamp = record.timestamp;
+        currentSample->channel_id = record.channel_id;
+        currentSample->raw_value = record.raw_value;
+
+
+        // Voltage set to 0 as it has not been calculated as of yet
+        currentSample->voltage = 0.0;
+
+        currentSample->temperature = record.temperature;
+        currentSample->status_flags = record.status_flags;
+        currentSample->sequence_number = record.sequence_number;
+    }
+
 
     fclose(file);
 
