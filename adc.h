@@ -50,11 +50,14 @@ typedef struct {
     uint32_t sequence_number;
     uint8_t reserved[2];
 } ADCBinaryRecord;
-
 #pragma pack(pop)
+
 
 //Function prototype - converts a raw ADC value to a voltage
 //Parameters: raw_value - ADC value between 0 and 4095
 //Returns: Calculated voltage between 0 V and 3 V
 double convertRawToVoltage(uint16_t raw_value);
+
+void calculateVoltages(ADCSample *samples, uint32_t record_count);
+
 #endif //CW_ADC_H

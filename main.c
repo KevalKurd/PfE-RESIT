@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
 
         return 1;
     }
+    calculateVoltages(samples, header.record_count);
 
 
     //If we reach here, the file header has been read correctly.
@@ -52,11 +53,12 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < 5; i++)
     {
-        printf("Record %d | Time: %.4f s | CH: %u | Raw: %u | Temp: %.1f C | Flags: 0x%02X | Seq: %u\n",
+        printf("Record %d | Time: %.4f s | CH: %u | Raw: %u | Voltage: %.6f V | Temp: %.1f C | Flags: 0x%02X | Seq: %u\n",
                i,
                samples[i].timestamp,
                samples[i].channel_id,
                samples[i].raw_value,
+               samples[i].voltage,
                samples[i].temperature / 10.0,
                samples[i].status_flags,
                samples[i].sequence_number);
