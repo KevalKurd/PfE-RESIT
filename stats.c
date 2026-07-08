@@ -5,16 +5,7 @@
 #include <math.h> //Needed for sqrt() function
 #include "stats.h"
 
-/*
- * Function: calculateChannelStats()
- *
- * Purpose:
- * Calculates voltage statistics for each ADC channel.
- *
- * Engineering idea:
- * Each channel represents a different sensor input.
- * Therefore, we analyse each channel separately.
- */
+
 //This function calculates the mean, minimum voltage, maximum voltage and the standard deviation
 void calculateChannelStats(ADCSample *samples,uint32_t record_count,ChannelStats stats[ADC_CHANNELS])
 {
@@ -92,17 +83,7 @@ void calculateChannelStats(ADCSample *samples,uint32_t record_count,ChannelStats
     }
 }
 
-/*
- * Function: detectFaults()
- *
- * Purpose:
- * Checks every ADC sample for fault conditions.
- *
- * Faults checked:
- * - voltage above 3.0 V
- * - voltage below 0.3 V
- * - status flag bit 0 set
- */
+
 // Function that checks every sample for faults
 void detectFaults(ADCSample *samples, uint32_t record_count, FaultStats faults[ADC_CHANNELS])
 {
@@ -142,6 +123,53 @@ void detectFaults(ADCSample *samples, uint32_t record_count, FaultStats faults[A
             {
                 faults[ch].sensor_fault_count++;
             }
+        }
+    }
+}
+
+
+ //Function to check the sequence numbers of the records
+ // Each ADC record has a sequence number that should increase by 1 each time
+ // Therefore is easy to spot out of order or missing records
+void checkSequenceIntegrity(ADCSample *samples, uint32_t record_count, IntegrityStats *integrity)
+{
+
+    // Setting both values to 0
+    integrity->missing_records = 0;
+    integrity->out_of_order_records = 0;
+
+
+    // Number of records must be 2 or more to be compared
+    if (record_count < 2)
+    {
+        return;
+    }
+
+
+    // Starting loop at record 1 as that would mean there are 2 records to compare
+    for (uint32_t i = 1; i < record_count; i++)
+    {
+
+        // Pointer arithmetic to access the samples
+        ADCSample *currentSample = samples + i;
+        ADCSample *previousSample = samples + i - 1;
+
+
+        // The expected sequence number should always be 1 more than the previous
+        uint32_t expectedSequence = previousSample->sequence_number + 1;
+
+
+        // If current sequence is greater than expected - there are 1 or more records missing
+        if (currentSample->sequence_number > expectedSequence)
+        {
+            integrity->missing_records += currentSample->sequence_number - expectedSequence;
+        }
+
+
+        // If current sequence number is less than or equal to previous sequence number, data has gone backwards or repeated
+        else if (currentSample->sequence_number <= previousSample->sequence_number)
+        {
+            integrity->out_of_order_records++;
         }
     }
 }

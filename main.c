@@ -125,6 +125,25 @@ int main(int argc, char *argv[])
     }
 
 
+
+    //Creates 1 structure to store the results of the sequence number integrity check
+    IntegrityStats integrity;
+
+
+    //Check all the sequence numbers
+    //Passing &integrity so the function can change the values inside the structure
+    checkSequenceIntegrity(samples,header.record_count,&integrity);
+
+
+    //Display the integrity results
+    printf("\nData Integrity Check:\n");
+
+    printf("Missing records       : %d\n",
+           integrity.missing_records);
+
+    printf("Out-of-order records  : %d\n",
+           integrity.out_of_order_records);
+
     //free() will release the memory back
     free(samples);
     return 0;

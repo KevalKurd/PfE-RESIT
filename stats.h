@@ -26,6 +26,27 @@ typedef struct {
 } FaultStats;
 
 
+// Structure stores the result of the data integrity check
+typedef struct {
+
+
+    // Counts the missing records
+    int missing_records;
+
+
+    // Records amount of out of order sequence numbers
+    int out_of_order_records;
+
+} IntegrityStats;
+
+
+
+//Function prototype for integrity check function
+// Samples - points to first ADC sample
+// record_count - total number of records
+// integrity - pointer to the structure where results will be stored
+void checkSequenceIntegrity(ADCSample *samples, uint32_t record_count, IntegrityStats *integrity);
+
 // Function prototype
 // samples pointer to first ADC sample in dynamically allocated memory
 // record_count - total number of records that need to be checked
