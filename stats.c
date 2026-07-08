@@ -91,3 +91,57 @@ void calculateChannelStats(ADCSample *samples,uint32_t record_count,ChannelStats
         }
     }
 }
+
+/*
+ * Function: detectFaults()
+ *
+ * Purpose:
+ * Checks every ADC sample for fault conditions.
+ *
+ * Faults checked:
+ * - voltage above 3.0 V
+ * - voltage below 0.3 V
+ * - status flag bit 0 set
+ */
+// Function that checks every sample for faults
+void detectFaults(ADCSample *samples, uint32_t record_count, FaultStats faults[ADC_CHANNELS])
+{
+    //Setting all values to 0
+    for (int ch = 0; ch < ADC_CHANNELS; ch++)
+    {
+        faults[ch].over_voltage_count = 0;
+        faults[ch].under_voltage_count = 0;
+        faults[ch].sensor_fault_count = 0;
+    }
+
+    // Go through every sample and record that number using record_count
+    for (uint32_t i = 0; i < record_count; i++)
+    {
+        ADCSample *currentSample = samples + i;
+
+        //Getting and checking channel number
+        int ch = currentSample->channel_id;
+
+        if (ch >= 0 && ch < ADC_CHANNELS)
+        {
+            //Overvoltage check
+            if (currentSample->voltage > 3.0)
+            {
+                faults[ch].over_voltage_count++;
+            }
+
+            //Undervoltage check
+            if (currentSample->voltage < 0.3)
+            {
+                faults[ch].under_voltage_count++;
+            }
+
+
+            // Bit 0 means sensor fault and 0x01 in binary is 00000001
+            if ((currentSample->status_flags & 0x01) != 0)
+            {
+                faults[ch].sensor_fault_count++;
+            }
+        }
+    }
+}

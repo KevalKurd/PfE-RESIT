@@ -49,26 +49,14 @@ int main(int argc, char *argv[])
     calculateChannelStats(samples, header.record_count, stats);
 
 
+    //Creating an array to store fault total - one structure per channel
+    FaultStats faults[ADC_CHANNELS];
 
-    printf("\nChannel Statistics:\n");
 
 
+    //Checking every sample for a fault
+    detectFaults(samples, header.record_count, faults);
 
-    // Now go through each channel and print the results
-    for (int ch = 0; ch < ADC_CHANNELS; ch++)
-    {
-        printf("\nChannel %d\n", ch);
-
-        printf("Samples             : %d\n", stats[ch].sample_count);
-
-        printf("Mean voltage        : %.6f V\n", stats[ch].mean_voltage);
-
-        printf("Minimum voltage     : %.6f V\n", stats[ch].min_voltage);
-
-        printf("Maximum voltage     : %.6f V\n", stats[ch].max_voltage);
-
-        printf("Standard deviation  : %.6f V\n", stats[ch].standard_deviation);
-    }
 
     //If we reach here, the file header has been read correctly.
     printf("\nADC file opened successfully.\n");
@@ -93,6 +81,50 @@ int main(int argc, char *argv[])
                samples[i].status_flags,
                samples[i].sequence_number);
     }
+
+
+    printf("\nChannel Statistics:\n");
+
+
+
+    // Now go through each channel and print the results
+    for (int ch = 0; ch < ADC_CHANNELS; ch++)
+    {
+        printf("\nChannel %d\n", ch);
+
+        printf("Samples             : %d\n", stats[ch].sample_count);
+
+        printf("Mean voltage        : %.6f V\n", stats[ch].mean_voltage);
+
+        printf("Minimum voltage     : %.6f V\n", stats[ch].min_voltage);
+
+        printf("Maximum voltage     : %.6f V\n", stats[ch].max_voltage);
+
+        printf("Standard deviation  : %.6f V\n", stats[ch].standard_deviation);
+    }
+
+
+    printf("\nFault Detection:\n");
+
+
+    for (int ch = 0; ch < ADC_CHANNELS; ch++)
+    {
+        printf("\nChannel %d\n", ch);
+
+        //Show how many samples were above 3.0 V
+        printf("Over-voltage faults  : %d\n",
+               faults[ch].over_voltage_count);
+
+        //Show how many samples were below 0.3 V
+        printf("Under-voltage faults : %d\n",
+               faults[ch].under_voltage_count);
+
+        //Show how many samples had status flag bit 0 set
+        printf("Sensor fault flags   : %d\n",
+               faults[ch].sensor_fault_count);
+    }
+
+
     //free() will release the memory back
     free(samples);
     return 0;
