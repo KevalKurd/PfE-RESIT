@@ -3,6 +3,7 @@
 
 #include "adc.h" //Includes my structs, constants and function prototypes
 #include "io.h"
+#include "stats.h"
 
 
 //argc means argument count when program is run
@@ -39,6 +40,35 @@ int main(int argc, char *argv[])
     }
     calculateVoltages(samples, header.record_count);
 
+
+    //Create an array containing one structure for each of the 4 channels
+    ChannelStats stats[ADC_CHANNELS];
+
+
+    // Now sending the samples to the stats function - this function will calc then store in the stats array
+    calculateChannelStats(samples, header.record_count, stats);
+
+
+
+    printf("\nChannel Statistics:\n");
+
+
+
+    // Now go through each channel and print the results
+    for (int ch = 0; ch < ADC_CHANNELS; ch++)
+    {
+        printf("\nChannel %d\n", ch);
+
+        printf("Samples             : %d\n", stats[ch].sample_count);
+
+        printf("Mean voltage        : %.6f V\n", stats[ch].mean_voltage);
+
+        printf("Minimum voltage     : %.6f V\n", stats[ch].min_voltage);
+
+        printf("Maximum voltage     : %.6f V\n", stats[ch].max_voltage);
+
+        printf("Standard deviation  : %.6f V\n", stats[ch].standard_deviation);
+    }
 
     //If we reach here, the file header has been read correctly.
     printf("\nADC file opened successfully.\n");
