@@ -144,6 +144,17 @@ int main(int argc, char *argv[])
     printf("Out-of-order records  : %d\n",
            integrity.out_of_order_records);
 
+
+    //Writing the final analysis results to the file
+    if (writeResultsFile("results.txt", stats, faults, &integrity) == 0)
+    {
+        printf("Error: Results file was not written.\n");
+    }
+    else
+    {
+        printf("\nResults written to results.txt\n");
+    }
+
     //free() will release the memory back
     free(samples);
     return 0;

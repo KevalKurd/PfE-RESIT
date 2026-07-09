@@ -150,3 +150,59 @@ int readADCFile(const char *filename,ADCFileHeader *header,ADCSample **samples)
 
     return 1;
 }
+
+
+// Function - writes the final ADC analysis results into a text file
+int writeResultsFile(const char *filename, ChannelStats stats[ADC_CHANNELS], FaultStats faults[ADC_CHANNELS], IntegrityStats *integrity)
+{
+
+    //Opening the analysis file in write mode
+    FILE *file = fopen(filename, "w"); //Means open the file, in written mode
+
+
+    //Double-checking that fopen() has worked
+    if (file == NULL)
+    {
+        printf("Error: Could not create results file.\n");
+        return 0;
+    }
+
+    //Header for the file
+    fprintf(file, "ADC Sensor Log Analysis Results\n\n");
+
+
+    //Will write the stats and fault results for each channel
+    for (int ch = 0; ch < ADC_CHANNELS; ch++) //Loop runs four the 4 channels
+    {
+        fprintf(file, "Channel %d\n", ch);
+        fprintf(file, "---------\n");
+
+        fprintf(file, "Samples             : %d\n",stats[ch].sample_count);
+
+        fprintf(file, "Mean voltage        : %.6f V\n",stats[ch].mean_voltage);
+
+        fprintf(file, "Minimum voltage     : %.6f V\n",stats[ch].min_voltage);
+
+        fprintf(file, "Maximum voltage     : %.6f V\n",stats[ch].max_voltage);
+
+        fprintf(file, "Standard deviation  : %.6f V\n",stats[ch].standard_deviation);
+
+        fprintf(file, "Over-voltage faults : %d\n",faults[ch].over_voltage_count);
+
+        fprintf(file, "Under-voltage faults: %d\n",faults[ch].under_voltage_count);
+
+        fprintf(file, "Sensor fault flags  : %d\n\n",faults[ch].sensor_fault_count);
+    }
+
+
+    //Write the sequence number integrity results
+    fprintf(file, "Data Integrity Check\n");
+
+    fprintf(file, "Missing records      : %d\n",integrity->missing_records);
+
+    fprintf(file, "Out-of-order records : %d\n",integrity->out_of_order_records);
+
+    fclose(file);
+
+    return 1;
+}
