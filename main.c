@@ -10,7 +10,7 @@
 //argv stores every word in the argument
 int main(int argc, char *argv[])
 {
-    printf("Size of ADCBinaryRecord: %zu bytes\n", sizeof(ADCBinaryRecord));
+
     //This creates ONE structure
     ADCFileHeader header;
 
@@ -56,6 +56,15 @@ int main(int argc, char *argv[])
 
     //Checking every sample for a fault
     detectFaults(samples, header.record_count, faults);
+
+
+    //Creates 1 structure to store the results of the sequence number integrity check
+    IntegrityStats integrity;
+
+
+    //Check all the sequence numbers
+    //Passing &integrity so the function can change the values inside the structure
+    checkSequenceIntegrity(samples,header.record_count,&integrity);
 
 
     //If we reach here, the file header has been read correctly.
@@ -123,16 +132,6 @@ int main(int argc, char *argv[])
         printf("Sensor fault flags   : %d\n",
                faults[ch].sensor_fault_count);
     }
-
-
-
-    //Creates 1 structure to store the results of the sequence number integrity check
-    IntegrityStats integrity;
-
-
-    //Check all the sequence numbers
-    //Passing &integrity so the function can change the values inside the structure
-    checkSequenceIntegrity(samples,header.record_count,&integrity);
 
 
     //Display the integrity results
