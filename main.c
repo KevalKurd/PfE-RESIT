@@ -10,7 +10,8 @@
 //argv stores every word in the argument
 int main(int argc, char *argv[])
 {
-
+    printf("Size of ADCBinaryRecord: %zu bytes\n",
+           sizeof(ADCBinaryRecord));
     //This creates ONE structure
     ADCFileHeader header;
 
